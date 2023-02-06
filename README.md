@@ -1,1 +1,1 @@
-docker build -t isaiaszmendes/postgres .
+A project to learn prisma
