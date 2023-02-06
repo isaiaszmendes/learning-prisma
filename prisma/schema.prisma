@@ -10,12 +10,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum TrailStatus {
+  ACTIVE
+  INACTIVE
+}
+
 model Trail {
   id String @id @default(uuid())
 
   tittle      String
   description String?
-  slug        String  @unique
+  slug        String      @unique
+  status      TrailStatus @default(ACTIVE)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
