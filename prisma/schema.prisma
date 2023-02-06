@@ -1,8 +1,9 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
 }
 
 datasource db {
@@ -10,67 +11,54 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum TrailStatus {
-  ACTIVE
-  INACTIVE
-}
-
-model Trail {
-  id String @id @default(uuid())
-
-  tittle      String
-  description String?
-  slug        String      @unique
-  status      TrailStatus @default(ACTIVE)
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  enrollments Enrollment[]
-  courses     Course[]
-
-  @@map("trails")
-}
-
 model Course {
-  id          String  @id @default(uuid())
+  id          String  @id
   tittle      String
   description String?
   slug        String  @unique
-
-  trail_id String
-  trail    Trail  @relation(fields: [trail_id], references: [id])
+  trail_id    String
+  trails      trails  @relation(fields: [trail_id], references: [id])
 }
 
 model Lesson {
-  id          String  @id @default(uuid())
+  id          String  @id
   tittle      String
   description String?
   slug        String  @unique
 }
 
-model Student {
-  id    String @id @default(uuid())
-  name  String
-  email String @unique
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  enrollments Enrollment[]
-
-  @@map("students")
+model enrollments {
+  id         String    @id
+  trail_id   String?
+  student_id String?
+  created_at DateTime  @default(now())
+  updated_at DateTime
+  students   students? @relation(fields: [student_id], references: [id])
+  trails     trails?   @relation(fields: [trail_id], references: [id])
 }
 
-model Enrollment {
-  id         String   @id @default(uuid())
-  trail_id   String?
-  Trail      Trail?   @relation(fields: [trail_id], references: [id])
-  student_id String?
-  Student    Student? @relation(fields: [student_id], references: [id])
+model students {
+  id          String        @id
+  name        String
+  email       String        @unique
+  created_at  DateTime      @default(now())
+  updated_at  DateTime
+  enrollments enrollments[]
+}
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+model trails {
+  id          String        @id
+  tittle      String
+  description String?
+  slug        String        @unique
+  created_at  DateTime      @default(now())
+  updated_at  DateTime
+  status      TrailStatus   @default(ACTIVE)
+  Course      Course[]
+  enrollments enrollments[]
+}
 
-  @@map("enrollments")
+enum TrailStatus {
+  ACTIVE
+  INACTIVE
 }
